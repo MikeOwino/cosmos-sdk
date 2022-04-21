@@ -28,21 +28,21 @@ The Cosmos SDK `x/authz` module comes with following authorization types:
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.43.0-beta1/x/authz/generic_authorization.go#L18-L31
 
-- `msg` stores Msg type URL.
+* `msg` stores Msg type URL.
 
 ### SendAuthorization
 
-`SendAuthorization` implements the `Authorization` interface for the `cosmos.bank.v1beta1.MsgSend` Msg. It takes a `SpendLimit` that specifies the maximum amount of tokens the grantee can spend. The `SpendLimit` is updated as the tokens are spent.
+`SendAuthorization` implements the `Authorization` interface for the `cosmos.bank.v1beta1.MsgSend` Msg. It takes a (positive) `SpendLimit` that specifies the maximum amount of tokens the grantee can spend. The `SpendLimit` is updated as the tokens are spent.
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.43.0-beta1/proto/cosmos/bank/v1beta1/authz.proto#L10-L19
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.43.0-beta1/x/bank/types/send_authorization.go#L25-L40
 
-- `spend_limit` keeps track of how many coins are left in the authorization.
+* `spend_limit` keeps track of how many coins are left in the authorization.
 
 ### StakeAuthorization
 
-`StakeAuthorization` implements the `Authorization` interface for messages in the [staking module](https://docs.cosmos.network/v0.44/modules/staking/). It takes an `AuthorizationType` to specify whether you want to authorise delegating, undelegating or redelegating (i.e. these have to be authorised seperately). It also takes a `MaxTokens` that keeps track of a limit to the amount of tokens that can be delegated/undelegated/redelegated. If left empty, the amount is unlimited. Additionally, this Msg takes an `AllowList` and a `DenyList`, which allows you to select which validators you allow grantees to stake with.
+`StakeAuthorization` implements the `Authorization` interface for messages in the [staking module](https://docs.cosmos.network/v0.44/modules/staking/). It takes an `AuthorizationType` to specify whether you want to authorise delegating, undelegating or redelegating (i.e. these have to be authorised seperately). It also takes a required `MaxTokens` that keeps track of a limit to the amount of tokens that can be delegated/undelegated/redelegated. If left empty, the amount is unlimited. Additionally, this Msg takes an `AllowList` or a `DenyList`, which allows you to select which validators you allow or deny grantees to stake with.
 
 +++ https://github.com/cosmos/cosmos-sdk/blob/v0.43.0-beta1/proto/cosmos/staking/v1beta1/authz.proto#L11-L31
 
@@ -51,3 +51,5 @@ The Cosmos SDK `x/authz` module comes with following authorization types:
 ## Gas
 
 In order to prevent DoS attacks, granting `StakeAuthorization`s with `x/authz` incurs gas. `StakeAuthorization` allows you to authorize another account to delegate, undelegate, or redelegate to validators. The authorizer can define a list of validators they allow or deny delegations to. The Cosmos SDK iterates over these lists and charge 10 gas for each validator in both of the lists.
+
+Since the state maintaining a list for granter, grantee pair with same expiration, we are iterating over the list to remove the grant (incase of any revoke of paritcular `msgType`) from the list and we are charging 20 gas per iteration.

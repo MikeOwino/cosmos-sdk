@@ -18,12 +18,12 @@ import (
 )
 
 const (
-	// Simulation operation weights constants
+	// OpWeightMsgSend Simulation operation weights constants
 	OpWeightMsgSend = "op_weight_msg_send"
 )
 
 const (
-	// nft operations weights
+	// WeightSend nft operations weights
 	WeightSend = 100
 )
 
@@ -81,7 +81,7 @@ func SimulateMsgSend(
 			return simtypes.NoOpMsg(nft.ModuleName, TypeMsgSend, err.Error()), nil, err
 		}
 
-		spendLimit := spendableCoins.Sub(fees)
+		spendLimit := spendableCoins.Sub(fees...)
 		if spendLimit == nil {
 			return simtypes.NoOpMsg(nft.ModuleName, TypeMsgSend, "spend limit is nil"), nil, nil
 		}
@@ -99,7 +99,7 @@ func SimulateMsgSend(
 		}
 
 		txCfg := simappparams.MakeTestEncodingConfig().TxConfig
-		tx, err := helpers.GenTx(
+		tx, err := helpers.GenSignedMockTx(
 			txCfg,
 			[]sdk.Msg{msg},
 			fees,

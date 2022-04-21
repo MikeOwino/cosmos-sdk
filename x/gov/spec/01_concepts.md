@@ -8,12 +8,12 @@ _Disclaimer: This is work in progress. Mechanisms are susceptible to change._
 
 The governance process is divided in a few steps that are outlined below:
 
-- **Proposal submission:** Proposal is submitted to the blockchain with a
+* **Proposal submission:** Proposal is submitted to the blockchain with a
   deposit.
-- **Vote:** Once deposit reaches a certain value (`MinDeposit`), proposal is
+* **Vote:** Once deposit reaches a certain value (`MinDeposit`), proposal is
   confirmed and vote opens. Bonded Atom holders can then send `TxGovVote`
   transactions to vote on the proposal.
-- **Execution** After a period of time, the votes are tallied and depending
+* **Execution** After a period of time, the votes are tallied and depending
   on the result, the messages in the proposal will be executed.
 
 ## Proposal submission
@@ -58,16 +58,16 @@ proposal is finalized (passed or rejected).
 When a proposal is finalized, the coins from the deposit are either refunded or burned
 according to the final tally of the proposal:
 
-- If the proposal is approved or rejected but _not_ vetoed, each deposit will be
+* If the proposal is approved or rejected but _not_ vetoed, each deposit will be
   automatically refunded to its respective depositor (transferred from the governance
   `ModuleAccount`).
-- When the proposal is vetoed with greater than 1/3, deposits will be burned from the
+* When the proposal is vetoed with greater than 1/3, deposits will be burned from the
   governance `ModuleAccount` and the proposal information along with its deposit
   information will be removed from state.
-- All refunded or burned deposits are removed from the state. Events are issued when
+* All refunded or burned deposits are removed from the state. Events are issued when
   burning or refunding a deposit.
 
-## Voting
+## Vote
 
 ### Participants
 
@@ -79,9 +79,9 @@ can submit and deposit on proposals.
 Note that some _participants_ can be forbidden to vote on a proposal under a
 certain validator if:
 
-- _participant_ bonded or unbonded Atoms to said validator after proposal
+* _participant_ bonded or unbonded Atoms to said validator after proposal
   entered voting period.
-- _participant_ became validator after proposal entered voting period.
+* _participant_ became validator after proposal entered voting period.
 
 This does not prevent _participant_ to vote with Atoms bonded to other
 validators. For example, if a _participant_ bonded some Atoms to validator A
@@ -104,10 +104,10 @@ choose from when casting its vote.
 
 The initial option set includes the following options:
 
-- `Yes`
-- `No`
-- `NoWithVeto`
-- `Abstain`
+* `Yes`
+* `No`
+* `NoWithVeto`
+* `Abstain`
 
 `NoWithVeto` counts as `No` but also adds a `Veto` vote. `Abstain` option
 allows voters to signal that they do not intend to vote in favor or against the
@@ -140,20 +140,27 @@ casted on a proposal for the result to be valid.
 Threshold is defined as the minimum proportion of `Yes` votes (excluding
 `Abstain` votes) for the proposal to be accepted.
 
-Initially, the threshold is set at 50% with a possibility to veto if more than
-1/3rd of votes (excluding `Abstain` votes) are `NoWithVeto` votes. This means
-that proposals are accepted if the proportion of `Yes` votes (excluding
-`Abstain` votes) at the end of the voting period is superior to 50% and if the
-proportion of `NoWithVeto` votes is inferior to 1/3 (excluding `Abstain`
-votes).
+Initially, the threshold is set at 50% of `Yes` votes, excluding `Abstain`
+votes. A possibility to veto exists if more than 1/3rd of all votes are
+`NoWithVeto` votes.  Note, both of these values are derived from the `TallyParams`
+on-chain parameter, which is modifiable by governance.
+This means that proposals are accepted iff:
+
+* There exist bonded tokens.
+* Quorum has been achieved.
+* The proportion of `Abstain` votes is inferior to 1/1.
+* The proportion of `NoWithVeto` votes is inferior to 1/3, including
+  `Abstain` votes.
+* The proportion of `Yes` votes, excluding `Abstain` votes, at the end of
+  the voting period is superior to 1/2.
 
 ### Inheritance
 
 If a delegator does not vote, it will inherit its validator vote.
 
-- If the delegator votes before its validator, it will not inherit from the
+* If the delegator votes before its validator, it will not inherit from the
   validator's vote.
-- If the delegator votes after its validator, it will override its validator
+* If the delegator votes after its validator, it will override its validator
   vote with its own. If the proposal is urgent, it is possible
   that the vote will close before delegators have a chance to react and
   override their validator's vote. This is not a problem, as proposals require more than 2/3rd of the total voting power to pass before the end of the voting period. If more than 2/3rd of validators collude, they can censor the votes of delegators anyway.
@@ -169,7 +176,7 @@ Later, we may add permissioned keys that could only sign txs from certain module
 ## Software Upgrade
 
 If proposals are of type `SoftwareUpgradeProposal`, then nodes need to upgrade
-their software to the new version that was voted. This process is divided in
+their software to the new version that was voted. This process is divided into
 two steps.
 
 ### Signal
@@ -193,4 +200,4 @@ Once a block contains more than 2/3rd _precommits_ where a common
 nodes, non-validating full nodes and light-nodes) are expected to switch to the
 new version of the software.
 
-_Note: Not clear how the flip is handled programmatically_
+_Note: Not clear how the flip is handled programmatically._
